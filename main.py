@@ -3,8 +3,10 @@ from tkinter import font
 from tkinter import filedialog
 import tkinter.ttk as ttk
 from yt_dlp import YoutubeDL, utils
+import os
 
-folder_selected = ""
+folder_selected = os.getcwd()
+lbl_current_folder = None
 
 
 def main():
@@ -18,6 +20,9 @@ def main():
 
     btn_select_file = ttk.Button(text="Select folder", command=select_folder)
     btn_select_file.pack()
+    global lbl_current_folder
+    lbl_current_folder = ttk.Label(text=f"Current folder: {folder_selected}")
+    lbl_current_folder.pack()
 
     ent_url = ttk.Entry(width=50)
     ent_url.pack()
@@ -34,6 +39,7 @@ def main():
 def select_folder():
     global folder_selected
     folder_selected = filedialog.askdirectory()
+    lbl_current_folder["text"] = f"Current folder: {folder_selected}"
 
 
 def download_mp3(ent_url):
@@ -48,10 +54,7 @@ def download(url):
         try:
             ydl.download(URLS)
         except utils.YoutubeDLError as e:
-            tk.messagebox.showerror(
-                title="An error occured",
-                message=e.msg,
-            )
+            tk.messagebox.showerror(title="Error", message=e.msg)
 
 
 if __name__ == "__main__":
