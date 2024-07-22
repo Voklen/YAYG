@@ -2,9 +2,9 @@ import tkinter as tk
 from tkinter import font
 from tkinter import filedialog
 import tkinter.ttk as ttk
-from yt_dlp import YoutubeDL
+from yt_dlp import YoutubeDL, utils
 
-folder_selected = None
+folder_selected = ""
 
 
 def main():
@@ -42,16 +42,16 @@ def download_mp3(ent_url):
 
 def download(url):
     global folder_selected
-    if folder_selected == None:
-        print("nothing")
-        return
     URLS = [url]
-    with YoutubeDL(
-        params={
-            "paths": {"home": folder_selected},
-        },
-    ) as ydl:
-        ydl.download(URLS)
+    params = {"paths": {"home": folder_selected}}
+    with YoutubeDL(params) as ydl:
+        try:
+            ydl.download(URLS)
+        except utils.YoutubeDLError as e:
+            tk.messagebox.showerror(
+                title="An error occured",
+                message=e.msg,
+            )
 
 
 if __name__ == "__main__":
