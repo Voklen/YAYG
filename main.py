@@ -18,7 +18,7 @@ def main():
     )
     lbl_title.pack()
 
-    btn_select_file = ttk.Button(text="Select folder", command=select_folder)
+    btn_select_file = ttk.Button(text="Change folder", command=select_folder)
     btn_select_file.pack()
     global lbl_current_folder
     lbl_current_folder = ttk.Label(text=f"Current folder: {folder_selected}")
@@ -27,13 +27,16 @@ def main():
     ent_url = ttk.Entry(width=50)
     ent_url.pack()
 
-    btn_download_mp3 = ttk.Button(
-        text="Download mp3",
-        command=lambda: download_mp3(ent_url),
+    btn_download_audio = ttk.Button(
+        text="Download audio",
+        command=lambda: download_audio(ent_url.get()),
     )
-    btn_download_mp3.pack()
-    btn_download_mp4 = ttk.Button(text="Download mp4")
-    btn_download_mp4.pack()
+    btn_download_audio.pack()
+    btn_download_video = ttk.Button(
+        text="Download video",
+        command=lambda: download(ent_url.get()),
+    )
+    btn_download_video.pack()
 
 
 def select_folder():
@@ -42,14 +45,29 @@ def select_folder():
     lbl_current_folder["text"] = f"Current folder: {folder_selected}"
 
 
-def download_mp3(ent_url):
-    download(ent_url.get())
+def download_audio(url):
+    download(
+        url,
+        {
+            "format": "mp3/bestaudio/best",
+            "postprocessors": [
+                {  # Extract audio using ffmpeg
+                    "key": "FFmpegExtractAudio",
+                    "preferredcodec": "mp3",
+                }
+            ],
+        },
+    )
 
 
-def download(url):
+def download(url, additional_params=None):
     global folder_selected
     URLS = [url]
-    params = {"paths": {"home": folder_selected}}
+    params = {
+        "paths": {"home": folder_selected},
+    }
+    if additional_params != None:
+        params = {**params, **additional_params}
     with YoutubeDL(params) as ydl:
         try:
             ydl.download(URLS)
