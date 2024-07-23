@@ -5,7 +5,7 @@ from yt_dlp import utils, YoutubeDL
 import os
 
 folder_selected = os.getcwd()
-lbl_current_folder = None
+lbl_current_folder: ttk.Label
 
 
 def main():
