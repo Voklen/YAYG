@@ -7,6 +7,7 @@ import os
 
 folder_selected = os.getcwd()
 lbl_current_folder = None
+progress = None
 
 
 def main():
@@ -38,6 +39,12 @@ def main():
     )
     btn_download_video.pack()
 
+    global progress
+    progress = tk.IntVar()
+    progressbar = ttk.Progressbar(variable=progress)
+    progressbar.place(width=500)
+    progressbar.pack()
+
 
 def select_folder():
     global folder_selected
@@ -65,6 +72,7 @@ def download(url, additional_params=None):
     URLS = [url]
     params = {
         "paths": {"home": folder_selected},
+        "progress_hooks": [progress_hook],
     }
     if additional_params != None:
         params = {**params, **additional_params}
@@ -73,6 +81,24 @@ def download(url, additional_params=None):
             ydl.download(URLS)
         except utils.YoutubeDLError as e:
             tk.messagebox.showerror(title="Error", message=e.msg)
+
+
+def progress_hook(d):
+    global progress
+    if d["status"] == "finished":
+        progress.set(99.9)
+        return
+    if d["status"] != "downloading":
+        return
+    if "downloaded_bytes" not in d or "total_bytes" not in d:
+        print("none")
+        return
+    downloaded_bytes = d["downloaded_bytes"]
+    total_bytes_estimate = d["total_bytes"]
+    print("downloaded:", downloaded_bytes)
+    print("total:", total_bytes_estimate)
+    percent = 100 * total_bytes_estimate / (downloaded_bytes + total_bytes_estimate)
+    progress.set(percent)
 
 
 if __name__ == "__main__":
