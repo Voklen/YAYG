@@ -1,8 +1,7 @@
 import tkinter as tk
-from tkinter import font
-from tkinter import filedialog
 import tkinter.ttk as ttk
-from yt_dlp import YoutubeDL, utils
+from tkinter import filedialog, font
+from yt_dlp import utils, YoutubeDL
 import os
 
 folder_selected = os.getcwd()
@@ -46,28 +45,25 @@ def select_folder():
 
 
 def download_audio(url):
-    download(
-        url,
-        {
-            "format": "mp3/bestaudio/best",
-            "postprocessors": [
-                {  # Extract audio using ffmpeg
-                    "key": "FFmpegExtractAudio",
-                    "preferredcodec": "mp3",
-                }
-            ],
-        },
-    )
+    additional_params = {
+        "format": "mp3/bestaudio/best",
+        "postprocessors": [
+            {  # Extract audio using ffmpeg
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+            }
+        ],
+    }
+    download(url, additional_params)
 
 
-def download(url, additional_params=None):
+def download(url, additional_params={}):
     global folder_selected
     URLS = [url]
     params = {
         "paths": {"home": folder_selected},
+        **additional_params,
     }
-    if additional_params != None:
-        params = {**params, **additional_params}
     with YoutubeDL(params) as ydl:
         try:
             ydl.download(URLS)
